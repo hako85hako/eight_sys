@@ -1,0 +1,41 @@
+version: '3'
+services:
+    nginx:
+        image: nginx:1.15
+        ports:
+            - 80:80
+        volumes:
+            - ./source:/usr/share/nginx/html
+            - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    php-fpm:
+        build: ./php-fpm
+        volumes:
+            - ./source:/var/www/html
+    mysql:
+        platform: linux/x86_64
+        image: mysql:8.0.23
+        environment:
+            MYSQL_DATABASE: eight_sys_local_db
+            MYSQL_ROOT_PASSWORD: password
+            MYSQL_USER: root
+            MYSQL_PASSWORD: root
+            TZ: Asia/Tokyo
+        ports:
+            - 3306:3306
+        # expose:
+        #     - 3307
+        volumes:
+            - ./mysql/data:/var/lib/mysql       
+    # phpmyadmin_srv:
+    #     image: phpmyadmin/phpmyadmin
+    #     environment:
+    #     - PMA_ARBITRARY=1
+    #     - PMA_HOST=mysql_srv:3307
+    #     - PMA_USER=root
+    #     - PMA_PASSWORD=root
+    #     links:
+    #     - mysql_srv
+    #     ports:
+    #     - 4001:80
+    #     volumes:
+    #     - ./phpmyadmin/sessions:/sessions

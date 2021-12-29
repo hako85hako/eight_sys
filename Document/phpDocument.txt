@@ -1,0 +1,41 @@
+#cache clear
+php artisan cache:clear
+php artisan config:cache
+
+#マイグレーション実行
+php artisan migrate
+php artisan migrate:refresh --step=1  --path=/database/migrations/2021_12_28_125816_create_department_items_table.php
+
+#マイグレーション作成
+#companys
+php artisan make:migration create_companys_table --create=companys
+#user_details
+php artisan make:migration create_user_details_table --create=user_details
+#attendances
+php artisan make:migration create_attendances_table --create=attendances
+#attendance_details
+php artisan make:migration create_attendance_details_table --create=attendance_details
+#status_items
+php artisan make:migration create_status_items_table --create=status_items
+#department_items
+php artisan make:migration create_department_items_table --create=department_items
+
+
+#seeding作成
+php artisan make:seeder companysTableSeeder
+#seeding実行
+php artisan db:seed
+
+#コンテナにログイン
+docker exec -it eight-sys_php-fpm_1 bash
+docker exec -it eight-sys_mysql_1 bash
+docker exec -it eight-sys_nginx_1 bash
+
+ls
+
+    DB::beginTransaction();
+    try{
+        DB::commit();
+    }catch (\Exception $e) {
+        DB::rollback();
+    }
