@@ -14,21 +14,29 @@ use Illuminate\Support\Facades\Route;
 */
 
  //company
- Route::resource('company','App\Http\Controllers\companyController');
+ Route::resource('company','App\Http\Controllers\companyController')
+ ->middleware('header');
  //user_detail
- Route::resource('userDetail','App\Http\Controllers\userDetailController');
+ Route::resource('userDetail','App\Http\Controllers\userDetailController')
+ ->middleware('header');
  //attendance
- Route::resource('attendance','App\Http\Controllers\attendanceController');
+ Route::resource('attendance','App\Http\Controllers\attendanceController')
+ ->middleware('header');
  //attendance_detail
- Route::resource('attendanceDetail','App\Http\Controllers\attendanceDetailController');
+ Route::resource('attendanceDetail','App\Http\Controllers\attendanceDetailController')
+ ->middleware('header');
  //requestRest
- Route::resource('requestRest','App\Http\Controllers\requestRestController');
+ Route::resource('requestRest','App\Http\Controllers\requestRestController')
+ ->middleware('header');
  //requestRestManagement
- Route::resource('requestRestManagement','App\Http\Controllers\requestRestManagementController');
+ Route::resource('requestRestManagement','App\Http\Controllers\requestRestManagementController')
+ ->middleware('header');
  //aggregate
- Route::resource('aggregate','App\Http\Controllers\aggregateController');
+ Route::resource('aggregate','App\Http\Controllers\aggregateController')
+ ->middleware('header');
  //setting
- Route::resource('setting','App\Http\Controllers\settingController');
+ Route::resource('setting','App\Http\Controllers\settingController')
+ ->middleware('header');
 
  Auth::routes();
 

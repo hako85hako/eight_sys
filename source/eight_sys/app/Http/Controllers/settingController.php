@@ -32,22 +32,72 @@ class settingController extends Controller
                 ->where('company_id',$user_detail->company_id)
                 ->get();
         
-        return view('setting/index',compact('user_detail','status_items','department_items'));
+        return view('setting/index',compact('status_items','department_items'));
     }
 
     //詳細表示
     //「/setting/{id}」へのアクセス
     public function show(){
         
-        return view('setting/show', compact('user_detail'));
+        return view('setting/show');
     }
 
     //新規作成画面への遷移
     //「/setting/create」へのアクセス
-    public function create(){
+    public function create(Request $request){
+        DB::beginTransaction();
+        try{
+            $user_detail = user_detail::where('DELETE_FLG',False)
+                ->where('user_id',Auth::user()->id)
+                ->first();
+            if($request->select == 'status'){
+                $status_item = new status_item();
+                $status_item->company_id = $user_detail->company_id;
+                
+                $status_item->status_name = $request->status_name;
+                if($request->work_flg == 'on'){
+                    $request->work_flg = 1;
+                }else{
+                    $request->work_flg = 0;
+                }
+                if($request->rest_flg == 'on'){
+                    $request->rest_flg = 1;
+                }else{
+                    $request->rest_flg = 0;
+                }
+                $status_item->work_flg = $request->work_flg;
+                $status_item->rest_flg = $request->rest_flg;
+
+                $status_item->CREATE_USER = Auth::user()->name;
+                $status_item->UPDATE_USER = Auth::user()->name;
+                $status_item->CREATE_USER_ID = Auth::user()->id;
+                $status_item->UPDATE_USER_ID = Auth::user()->id;
+
+                $status_item->save();
+                DB::commit();
+            }else if($request->select == 'department'){
+                $department_item = new department_item();
+                $department_item->company_id = $user_detail->company_id;
+                $department_item->department_name_1 = $request->department_name_1;
+                $department_item->department_name_2 = $request->department_name_2;
+
+                $department_item->CREATE_USER = Auth::user()->name;
+                $department_item->UPDATE_USER = Auth::user()->name;
+                $department_item->CREATE_USER_ID = Auth::user()->id;
+                $department_item->UPDATE_USER_ID = Auth::user()->id;
+
+                $department_item->save();
+                DB::commit();
+            }
+        }catch (\Exception $e) {
+            DB::rollback();
+            print($e->getMessage());
+            print('DBcommit失敗');
+        }
         
-        return view('setting/create', compact(''));
+        return redirect("/setting");
     }
+
 
     //新規作成処理
     //「/setting」へのPOSTアクセス
@@ -86,9 +136,9 @@ class settingController extends Controller
                 $status_item->work_flg = $request->work_flg;
                 $status_item->rest_flg = $request->rest_flg;
 
-                $status_item->CREATE_USER = Auth::user()->name;
+                //$status_item->CREATE_USER = Auth::user()->name;
                 $status_item->UPDATE_USER = Auth::user()->name;
-                $status_item->CREATE_USER_ID = Auth::user()->id;
+                //$status_item->CREATE_USER_ID = Auth::user()->id;
                 $status_item->UPDATE_USER_ID = Auth::user()->id;
 
                 $status_item->save();
@@ -100,9 +150,9 @@ class settingController extends Controller
                 $department_item->department_name_1 = $request->department_name_1;
                 $department_item->department_name_2 = $request->department_name_2;
 
-                $department_item->CREATE_USER = Auth::user()->name;
+                //$department_item->CREATE_USER = Auth::user()->name;
                 $department_item->UPDATE_USER = Auth::user()->name;
-                $department_item->CREATE_USER_ID = Auth::user()->id;
+                //$department_item->CREATE_USER_ID = Auth::user()->id;
                 $department_item->UPDATE_USER_ID = Auth::user()->id;
                 $department_item->save();
                 DB::commit();

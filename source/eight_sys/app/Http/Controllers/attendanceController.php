@@ -172,7 +172,7 @@ class attendanceController extends Controller
         //[5]：attendance_id
         //[6]：attendance_details → object
         //[7]：date_now;
-        return view('attendance/index',compact('date_items','status_items','time_items','month_inf','user_detail'));
+        return view('attendance/index',compact('date_items','status_items','time_items','month_inf'));
     }
 
     //詳細表示

@@ -18,7 +18,8 @@
     		<div class="col-md-3 col-sm-2 col-xs-2"></div>
 			<div class="col-md-6 col-sm-8 col-xs-8 text-center">
             	<a href="{{ url('/') }}" id="appTitle">
-    	            {{ config('app.name') }}
+    	            <!-- {{ config('app.name') }} -->
+                    {{$company_name ?? ''}}
     	        </a>
 	        </div>
 			<div class="col-md-3 col-sm-2 col-xs-2">

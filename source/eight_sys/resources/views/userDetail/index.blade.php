@@ -32,9 +32,11 @@
                             @endforeach
                         </td>
                         <td>
-                            <button type="button" class="btn btn-primary">
-                                詳細
-                            </button>
+                            <form action="/userDetail/{{ $user->id }}/edit" method="get">
+                                <button type="submit" class="btn btn-primary">
+                                    詳細
+                                </button>
+                            </form>
                         </td>
                     </tr>
                 @endforeach

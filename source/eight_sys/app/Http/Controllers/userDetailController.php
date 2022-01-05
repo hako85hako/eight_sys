@@ -6,8 +6,11 @@ use Illuminate\Http\Request;
 use App\MyTools\dateControllTools;
 use App\Models\attendance_detail;
 use App\Models\user_detail;
+use App\Models\User;
 use App\Models\department_item;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class userDetailController extends Controller
 {
@@ -30,41 +33,131 @@ class userDetailController extends Controller
         ->where('company_id',$user_detail->company_id)
         ->get();
 
-        return view('userDetail/index',compact('user_detail','users','department_items'));
+        return view('./userDetail/index',compact('users','department_items'));
     }
 
     //詳細表示
     //「/userDetail/{id}」へのアクセス
     public function show(){
         
-        return view('userDetail/show', compact('user_detail'));
     }
 
     //新規作成画面への遷移
     //「/userDetail/create」へのアクセス
     public function create(){
-        
-        return view('userDetail/create', compact(''));
+        $new_user = new user_detail();
+        $user_detail = user_detail::where('DELETE_FLG',False)
+        ->where('user_id',Auth::user()->id)
+        ->first();
+        $department_items = department_item::where('DELETE_FLG',False)
+        ->where('company_id',$user_detail->company_id)
+        ->get();
+
+
+        return view('userEdit/edit', compact('new_user','department_items'));
     }
 
     //新規作成処理
     //「/userDetail」へのPOSTアクセス
     public function store(Request $request){
         
+        DB::beginTransaction();
+        try{
+            //登録した人の情報
+            $user_detail = user_detail::where('DELETE_FLG',False)
+            ->where('user_id',Auth::user()->id)
+            ->first();
+
+            //登録する人の情報
+            //User
+            $new_User = new User();
+            $new_User->name = $request->name;
+            $new_User->email = $request->email;
+            $new_User->password = Hash::make($new_User->email.'123');
+            $new_User->save();
+            //user_detail
+            $new_user_detail = new user_detail();
+            $new_user_detail->user_id = $new_User->id;
+            $new_user_detail->date_inf = date('Y-m-d');
+            $new_user_detail->company_id = $user_detail->company_id;
+            $new_user_detail->name = $request->name;
+
+            $new_user_detail->CREATE_USER = Auth::user()->name;
+            $new_user_detail->UPDATE_USER = Auth::user()->name;
+            $new_user_detail->CREATE_USER_ID = Auth::user()->id;
+            $new_user_detail->UPDATE_USER_ID = Auth::user()->id;
+            $new_user_detail->save();
+            DB::commit();
+        }catch (\Exception $e) {
+            DB::rollback();
+            print($e->getMessage());
+            print('DBcommit失敗');
+        }
         return redirect("/userDetail");
     }
 
     //編集画面への遷移
     //「/userDetail/{id}/edit」へのアクセス
     public function edit($id){
-        
-        return view('userDetail/edit', compact(''));
+        DB::beginTransaction();
+        try{
+            $user_detail = user_detail::where('DELETE_FLG',False)
+            ->where('user_id',Auth::user()->id)
+            ->first();
+
+            $edit_user_detail = user_detail::where('DELETE_FLG',False)
+            ->where('id',$id)
+            ->first();
+            $edit_user = User::where('id',$edit_user_detail->user_id)
+            ->first();
+            $userEmail = $edit_user->email;
+            $department_items = department_item::where('DELETE_FLG',False)
+            ->where('company_id',$user_detail->company_id)
+            ->get();
+        }catch (\Exception $e) {
+            DB::rollback();
+            print($e->getMessage());
+            print('DBcommit失敗');
+        }
+
+        return view('/userEdit/store', 
+        compact('userEmail','department_items',
+                'edit_user_detail'));
     }
 
     //編集処理
     //「/userDetail/{id}」へのPUTアクセス
     public function update(Request $request, $id){
-        
+
+        DB::beginTransaction();
+        try{
+            //対象ユーザーの情報
+            
+            //var_dump($select_User);
+            if(isset($request->name)){
+                $select_User = User::where('id',$request->user_id)
+                        ->first();
+                $select_User->name = $request->name;
+                $select_User->email = $request->email;
+                $select_User->save();
+            }
+            //user_detail
+            $select_user_detail = user_detail::where('DELETE_FLG',False)
+            ->where('id',$id)
+            ->first();
+            $select_user_detail->department_id = $request->department;
+            $select_user_detail->name = $request->name;
+            $select_user_detail->CREATE_USER = Auth::user()->name;
+            $select_user_detail->UPDATE_USER = Auth::user()->name;
+            $select_user_detail->CREATE_USER_ID = Auth::user()->id;
+            $select_user_detail->UPDATE_USER_ID = Auth::user()->id;
+            $select_user_detail->save();
+            DB::commit();
+        }catch (\Exception $e) {
+            DB::rollback();
+            print($e->getMessage());
+            print('DBcommit失敗');
+        }
         return redirect("/userDetail");
     }
 
