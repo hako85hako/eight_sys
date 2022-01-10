@@ -21,7 +21,7 @@ services:
         environment:
             MYSQL_DATABASE: eight_sys_local_db
             MYSQL_ROOT_PASSWORD: password
-            MYSQL_USER: root
+            MYSQL_USER: user
             MYSQL_PASSWORD: root
             TZ: Asia/Tokyo
         ports:
