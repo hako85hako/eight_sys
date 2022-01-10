@@ -7,7 +7,9 @@ use Illuminate\Support\Facades\Schema;
 class CreateDepartmentItemsTable extends Migration
 {
     /**
-     * Run the migrations.
+     * 企業ごとの所属情報を管理するテーブル(仮)
+     * 
+     * おそらくもう一階層テーブルを作った方が無難
      *
      * @return void
      */

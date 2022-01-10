@@ -3,11 +3,12 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 class CreateCompanysTable extends Migration
 {
     /**
-     * Run the migrations.
+     * 企業情報テーブル
      *
      * @return void
      */

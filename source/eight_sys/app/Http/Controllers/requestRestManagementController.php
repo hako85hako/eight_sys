@@ -8,6 +8,12 @@ use App\Models\attendance_detail;
 use App\Models\user_detail;
 use Illuminate\Support\Facades\Auth;
 
+
+/**
+ * 有給管理に関するController
+ * 
+ * 
+ */
 class requestRestManagementController extends Controller
 {
     public function __construct(){

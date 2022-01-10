@@ -4,6 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+
+/**
+ * 企業に関するController
+ * 
+ * 
+ * 未作成
+ */
 class companyController extends Controller
 {
     public function __construct(){

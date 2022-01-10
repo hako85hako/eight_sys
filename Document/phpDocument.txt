@@ -20,6 +20,24 @@ php artisan make:migration create_status_items_table --create=status_items
 #department_items
 php artisan make:migration create_department_items_table --create=department_items
 
+#company_rest_settings
+php artisan make:migration create_company_rest_settings_table --create=company_rest_settings
+#user_rest_settings
+php artisan make:migration create_user_rest_settings_table --create=user_rest_settings
+#company_work_settings
+php artisan make:migration create_company_work_settings_table --create=company_work_settings
+#user_work_settings
+php artisan make:migration create_user_work_settings_table --create=user_work_settings
+#base_work_settings
+php artisan make:migration create_base_work_settings_table --create=base_work_settings
+#base_rest_settings
+php artisan make:migration create_base_rest_settings_table --create=base_rest_settings
+
+
+
+
+
+
 
 #seeding作成
 php artisan make:seeder companysTableSeeder

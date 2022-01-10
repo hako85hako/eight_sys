@@ -7,7 +7,8 @@ use Illuminate\Support\Facades\Schema;
 class CreateUserDetailsTable extends Migration
 {
     /**
-     * Run the migrations.
+     * ユーザー情報の追加情報
+     * 基本的にユーザー関連の操作、参照はこちらのテーブルを使用する
      *
      * @return void
      */
@@ -18,9 +19,11 @@ class CreateUserDetailsTable extends Migration
             $table->string('user_id', 200)->comment('ユーザーID情報');
             $table->string('company_id', 200)->comment('企業ID情報');
             $table->string('department_id', 200)->comment('所属ID情報');
+            $table->string('before_requestRest_id', 200)->nullable()->comment('前回付与有給休暇ID');
             $table->string('role', 200)->comment('権限情報');
             $table->string('name', 200)->comment('ユーザー名');
-            $table->string('monitor', 200)->default('attend')->comment('表示画面');
+            $table->date('hire_date')->nullable()->comment('入社年月日情報');
+            
             $table->date('date_inf')->comment('表示月日情報');
 
             //defalt_columns

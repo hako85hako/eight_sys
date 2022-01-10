@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 class CreateAttendanceDetailsTable extends Migration
 {
     /**
-     * Run the migrations.
+     * 時刻、詳細の勤怠情報を持つテーブル
      *
      * @return void
      */
@@ -20,6 +20,8 @@ class CreateAttendanceDetailsTable extends Migration
             $table->time('start_time')->comment('開始時刻');
             $table->time('stop_time')->comment('終了時刻');
             $table->boolean('word_flg')->default(false)->comment('労働フラグ');
+            $table->boolean('rest_flg')->default(false)->comment('休暇フラグ');
+            $table->boolean('request_rest_flg')->default(false)->comment('有給休暇フラグ');
 
             //defalt_columns
             $table->boolean('DELETE_FLG')->default(false)->comment('削除フラグ');

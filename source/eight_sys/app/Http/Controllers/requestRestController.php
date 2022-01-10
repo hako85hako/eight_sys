@@ -8,6 +8,11 @@ use App\Models\attendance_detail;
 use App\Models\user_detail;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * 有給休暇に関するController
+ * 
+ * 画面への遷移以外未作成
+ */
 class requestRestController extends Controller
 {
     public function __construct(){

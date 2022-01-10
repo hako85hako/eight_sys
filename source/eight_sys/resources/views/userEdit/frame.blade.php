@@ -25,6 +25,18 @@
                         <input type="text" class="form-control" name="email" value="{{$userEmail}}">
                     @endif
                 </div>
+                <label for="hire_year">Hire date</label>
+                <div class="form-group row">   
+                    @if($mode == 'store')
+                        <div class='col-sm-6 col-xs-12'>
+                            <input type="date" class="form-control" name="hire_date">
+                        </div>
+                    @elseif($mode == 'update')
+                        <div class='col-sm-6 col-xs-12'>
+                            <input type="date" class="form-control" name="hire_date" value="{{$edit_user_detail->hire_date}}">
+                        </div>
+                    @endif
+                </div>
                 <div class="form-group">
                     <label for="department">department</label>
                     <select class="form-control" name="department">

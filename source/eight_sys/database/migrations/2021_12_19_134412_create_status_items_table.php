@@ -7,7 +7,10 @@ use Illuminate\Support\Facades\Schema;
 class CreateStatusItemsTable extends Migration
 {
     /**
-     * Run the migrations.
+     * 企業ごとのステータス名を設定
+     * attendance_detailsに使用する
+     * 
+     * フラグごとの処理はControllerに記述
      *
      * @return void
      */
@@ -19,6 +22,7 @@ class CreateStatusItemsTable extends Migration
             $table->string('status_name', 200)->comment('ステータス名');
             $table->boolean('work_flg')->default(false)->comment('労働フラグ');
             $table->boolean('rest_flg')->default(false)->comment('休暇フラグ');
+            $table->boolean('request_rest_flg')->default(false)->comment('有給休暇フラグ');
             
             //defalt_columns
             $table->boolean('DELETE_FLG')->default(false)->comment('削除フラグ');

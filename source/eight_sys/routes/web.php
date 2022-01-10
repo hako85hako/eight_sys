@@ -37,6 +37,9 @@ use Illuminate\Support\Facades\Route;
  //setting
  Route::resource('setting','App\Http\Controllers\settingController')
  ->middleware('header');
+ //requestRest_setting
+ Route::resource('companyRequestRestSetting','App\Http\Controllers\companyRequestRestSettingController')
+ ->middleware('header');
 
  Auth::routes();
 

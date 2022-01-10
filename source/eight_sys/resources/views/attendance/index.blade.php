@@ -28,7 +28,11 @@
                     <th class="text-center"></th>
                 </tr>
                 @foreach($date_items as $date_item)
+                    @if($date_item[2]== 'error')
+                    <tr class="bg-danger">
+                    @else
                     <tr>
+                    @endif
                         <td>{{$date_item[0]}}</td>
                         <td>{{$date_item[2]}}</td>
                         <td>{{$date_item[3]}}</td>
@@ -136,6 +140,7 @@
                                                         @foreach($date_item[6] as $attendance_detail)
                                                         <form action="/attendanceDetail/{{$attendance_detail->id}}" method="post" id="delete{{$attendance_detail->id}}">
                                                             <input type="hidden" name="_method" value="PUT">
+                                                            <input type="hidden" name="attendance_id" value="{{$date_item[5]}}">
                                                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                                         </form>
                                                             <tr>

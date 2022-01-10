@@ -7,8 +7,12 @@ use Illuminate\Support\Facades\Schema;
 class CreateAttendancesTable extends Migration
 {
     /**
-     * Run the migrations.
-     *
+     * 
+     * 勤怠情報を格納するテーブル
+     * 
+     * 基本的にこのテーブルには、日付とユーザーID情報のみを格納する
+     * ここで付与された'id'をattendance_detailsテーブルで使用する
+     * 
      * @return void
      */
     public function up()
