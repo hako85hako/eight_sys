@@ -2,6 +2,7 @@ version: '3'
 services:
     nginx:
         image: nginx:1.15
+        container_name: eight_sys_nginx
         ports:
             - 80:80
         volumes:
@@ -9,11 +10,14 @@ services:
             - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     php-fpm:
         build: ./php-fpm
+        container_name: eight_sys_php_fpm
         volumes:
             - ./source:/var/www/html
     mysql:
         platform: linux/x86_64
         image: mysql:8.0.23
+        #image: mysql:5.7
+        container_name: eight_sys_mysql
         environment:
             MYSQL_DATABASE: eight_sys_local_db
             MYSQL_ROOT_PASSWORD: password
@@ -22,8 +26,8 @@ services:
             TZ: Asia/Tokyo
         ports:
             - 3306:3306
-        # expose:
-        #     - 3307
+        #expose:
+        #    - 3307
         volumes:
             - ./mysql/data:/var/lib/mysql       
     # phpmyadmin_srv:
