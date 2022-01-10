@@ -26,7 +26,7 @@ class department_itemsTableSeeder extends Seeder
             ];
         // 登録
         foreach($department_items as $department_item){
-            \App\Models\User::create($department_item);
+            \App\Models\department_item::create($department_item);
         }
     }
     
