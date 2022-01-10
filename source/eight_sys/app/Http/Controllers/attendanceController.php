@@ -46,6 +46,8 @@ class attendanceController extends Controller
                 $user_detail->date_inf = date('Y-m-d');
                 $user_detail->company_id = '1';//TODO 要修正
                 $user_detail->name = Auth::user()->name;
+                $user_detail->role = "user";
+                $user_detail->department_id = '1';//初期設定
                 $user_detail->CREATE_USER = Auth::user()->name;
                 $user_detail->UPDATE_USER = Auth::user()->name;
                 $user_detail->CREATE_USER_ID = Auth::user()->id;
