@@ -10,3 +10,6 @@ RUN mv composer.phar /usr/local/bin/composer
 #gitインストール
 RUN apt-get update
 RUN apt-get install -y git
+
+#unzipインストール
+RUN apt-get install zip unzip
