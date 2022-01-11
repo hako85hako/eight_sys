@@ -2,17 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\MyTools\dateControllTools;
-use App\MyTools\createDBitemTools;
-
-use App\Models\attendance;
-use App\Models\attendance_detail;
-use App\Models\status_item;
-use App\Models\user_detail;
-
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+
+use App\MyTools\dateControllTools;
+use App\MyTools\tableItemControllTools;
 
 /**
  * 勤怠に関するController
@@ -32,8 +27,7 @@ class attendanceController extends Controller
     **/
     public function index(Request $request){
         $date_now = date("Y-m-d", strtotime(date('Y-m-d')."-2 month"));
-        $myTools = new dateControllTools();
-        $user_detail = createDBitemTools::createUserDetail();
+        $user_detail = tableItemControllTools::get_userDetail_from_userId(Auth::user()->id);
         //初回アクセスの場合
         if(!isset($user_detail->user_id)){
             //月情報付与
@@ -42,7 +36,7 @@ class attendanceController extends Controller
             DB::beginTransaction();
             try{
                 //新規user_detail登録
-                $user_detail = new user_detail();
+                $user_detail = tableItemControllTools::create_userDetail();
                 $user_detail->user_id = Auth::user()->id;
                 $user_detail->date_inf = date('Y-m-d');
                 $user_detail->company_id = '1';//TODO 要修正
@@ -57,9 +51,7 @@ class attendanceController extends Controller
                 //コミット処理
                 DB::commit();
             }catch (\Exception $e) {
-                createDBitemTools::DBrollback();
-                //print($e->getMessage());
-                //print('DBcommit失敗');
+                tableItemControllTools::DBrollback($e);
             }
         }else{
             DB::beginTransaction();
@@ -81,9 +73,7 @@ class attendanceController extends Controller
                 //コミット処理
                 DB::commit();
             }catch (\Exception $e) {
-                createDBitemTools::DBrollback();
-                //print($e->getMessage());
-                //print('DBcommit失敗');
+                tableItemControllTools::DBrollback($e);
             }
         }
 
@@ -93,11 +83,10 @@ class attendanceController extends Controller
             //指定月の日数分のアイテムを作成
             $date_items = array();
             $monitor_date = $user_detail->date_inf;
-            //月の日数を取得
+            //初回アクセスの場合は現在の日時を登録
             if(!isset($monitor_date)){
                 $monitor_date = date('Y-m-d');
             }
-
             for($i=1; $i<(date("t", strtotime($monitor_date)))+1;$i++){
                 $select_month = date("Y-m", strtotime($monitor_date));
                 //Y-m-dの形に変換
@@ -108,21 +97,15 @@ class attendanceController extends Controller
                 //曜日を数字で取得
                 $preDayOfWeek = date("N", strtotime($dateBuff));
                 //日本語の曜日を取得
-                $dayOfWeek = dateControllTools::get_dayOfWeek($preDayOfWeek);
-                
+                $dayOfWeek = dateControllTools::get_dayOfWeek($preDayOfWeek);       
                 //attendanceを取得
-                $attendance = attendance::where('DELETE_FLG',False)
-                ->where('user_id',Auth::user()->id)
-                ->whereDate('date',$dateBuff)
-                ->first();
+                $attendance = tableItemControllTools::get_attendance_from_date_and_userId(Auth::user()->id,$dateBuff);
                 if(isset($attendance->id)){
-                    //print('attendanceあり');
+                    //メインステータス格納
                     $main_status = $attendance->main_status;
+
                     $update_date = $attendance->UPDATED_AT;
-                    $attendance_details = attendance_detail::where('DELETE_FLG',False)
-                    ->where('attendance_id',$attendance->id)
-                    ->orderBy('start_time','ASC')
-                    ->get();
+                    $attendance_details = tableItemControllTools::get_attendanceDetail_from_attendanceId_orderBy($attendance->id,'start_time','ASC');
                     $total_time = '00:00';
                     $total_hours = 0;
                     $total_minutes = 0;
@@ -146,7 +129,7 @@ class attendanceController extends Controller
                     $total_time = $hour.":".$minutes;
                     $attendance_id = $attendance->id;
                 }else{ 
-                    //print('attendanceなし');
+                    //attendanceなしの場合
                     $attendance_id = '-';
                     $main_status = '--';
                     $update_date = '--:--';
@@ -165,9 +148,8 @@ class attendanceController extends Controller
                 ];
             }
             //企業別勤怠状態の作成
-            $status_items = status_item::where('DELETE_FLG',False)
-            ->where('company_id',$user_detail->company_id)
-            ->get();
+            $status_items = tableItemControllTools::get_statusItem_from_companyId($user_detail->company_id);
+
             //時間情報の作成
             $time_items =  array();
             $t = strtotime('00:00');
@@ -177,7 +159,7 @@ class attendanceController extends Controller
             //コミット処理
             DB::commit();
         }catch (\Exception $e) {
-            createDBitemTools::DBrollback();
+            tableItemControllTools::DBrollback($e);
             print($e->getMessage());
             print('DBcommit失敗');
         }

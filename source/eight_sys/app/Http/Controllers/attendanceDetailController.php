@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use App\Models\attendance;
-use App\Models\attendance_detail;
-use App\Models\status_item;
 use Exception;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
+
+use App\MyTools\tableItemControllTools;
+
 
 
 /**
@@ -52,13 +52,11 @@ class attendanceDetailController extends Controller
         DB::beginTransaction();
         try{
             if(isset($request->attendance_id)){
-                //初回登録時
-                $attendance = attendance::where('DELETE_FLG',False)
-                ->where('id',$request->attendance_id)
-                ->first();
-            }else{
                 //二回目以降の登録時
-                $attendance = new attendance();
+                $attendance = tableItemControllTools::get_attendance_from_id($request->attendance_id);
+            }else{
+                //初回登録時
+                $attendance = tableItemControllTools::create_attendance();
                 $attendance->user_id = Auth::user()->id;
                 $attendance->date = $request->date;
             }
@@ -68,7 +66,7 @@ class attendanceDetailController extends Controller
             $attendance->UPDATE_USER_ID = Auth::user()->id;
             $attendance->save();
         
-            $attendance_detail = new attendance_detail();
+            $attendance_detail = tableItemControllTools::create_attendanceDetail();
             $attendance_detail->attendance_id = $attendance->id;
             $attendance_detail->status = $request->status_item;
             if($request->start_time_item>$request->stop_time_item){
@@ -77,9 +75,7 @@ class attendanceDetailController extends Controller
                 $attendance_detail->start_time = $request->start_time_item;
                 $attendance_detail->stop_time = $request->stop_time_item;
             }
-            $work_confirm = status_item::where('DELETE_FLG',False)
-            ->where('id',$request->status_item)
-            ->first();
+            $work_confirm = tableItemControllTools::get_statusItem_from_id($request->status_item);
             if($work_confirm->work_flg){
                 $attendance_detail->work_flg = 1;
             }
@@ -98,9 +94,7 @@ class attendanceDetailController extends Controller
             
             //attendanceのメインステータス更新処理
             //attendanceに登録されているdetailを抽出
-            $all_attendance_detail = attendance_detail::where('DELETE_FLG',False)
-            ->where('attendance_id',$attendance->id)
-            ->get();
+            $all_attendance_detail = tableItemControllTools::get_attendanceDetail_from_attendanceId($attendance->id);
             foreach($all_attendance_detail as $i){
                 if($i->work_flg){
                     $work_flg += 1;
@@ -118,10 +112,7 @@ class attendanceDetailController extends Controller
             //コミット処理
             DB::commit();
         }catch (\Exception $e) {
-            //ロールバック処理
-            DB::rollback();
-            //ログ出力
-            \Log::error($e);
+            tableItemControllTools::DBrollback($e);
             print($e->getMessage());
             print('DBcommit失敗');
         }
@@ -151,39 +142,29 @@ class attendanceDetailController extends Controller
         //トランザクション処理
         DB::beginTransaction();
         try{
-            $attendance_detail = attendance_detail::where('DELETE_FLG',False)
-            ->where('id',$id)
-            ->first();
+            $attendance_detail = tableItemControllTools::get_attendanceDetail_from_id($id);
             $attendance_detail->DELETE_FLG = True;
             $attendance_detail->save();
-            $all_attendance_detail = attendance_detail::where('DELETE_FLG',False)
-            ->where('attendance_id',$request->attedance_id)
-            ->get();
-
-            foreach($all_attendance_detail as $i){
-                if($i->work_flg){
+            $all_attendance_detail = tableItemControllTools::get_attendanceDetail_from_attendanceId($attendance_detail->attendance_id);
+            foreach($all_attendance_detail as $one_attendance_detail){
+                if($one_attendance_detail->work_flg){
                     $work_flg += 1;
                 }
-                if($i->rest_flg){
+                if($one_attendance_detail->rest_flg){
                     $rest_flg += 1;
                 }
-                if($i->request_rest_flg){
+                if($one_attendance_detail->request_rest_flg){
                     $request_rest_flg += 1;
                 }
             }
             //メインステータス割り振り
-            $attendance = attendance::where('DELETE_FLG',False)
-                    ->where('id',$request->attendance_id)
-                    ->first();
+            $attendance = tableItemControllTools::get_attendance_from_id($request->attendance_id);
             $attendance->main_status = $this->selectMainStatus($work_flg,$rest_flg,$request_rest_flg);
             $attendance->save();
             //コミット処理
             DB::commit();
         }catch (\Exception $e) {
-            //ロールバック処理
-            DB::rollback();
-            //ログ出力
-            \Log::error($e);
+            tableItemControllTools::DBrollback($e);
             print($e->getMessage());
             print('DBcommit失敗');
         }
@@ -204,7 +185,7 @@ class attendanceDetailController extends Controller
      *
      *  
     **/
-    public function selectMainStatus($work_flg,$rest_flg,$request_rest_flg){
+    private function selectMainStatus($work_flg,$rest_flg,$request_rest_flg){
         $result = "--";
         if($work_flg>0&&$rest_flg>0&&$request_rest_flg>0){
             $result = "error";

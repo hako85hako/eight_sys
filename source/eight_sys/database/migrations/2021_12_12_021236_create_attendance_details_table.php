@@ -19,7 +19,7 @@ class CreateAttendanceDetailsTable extends Migration
             $table->string('status', 200)->comment('状態');
             $table->time('start_time')->comment('開始時刻');
             $table->time('stop_time')->comment('終了時刻');
-            $table->boolean('word_flg')->default(false)->comment('労働フラグ');
+            $table->boolean('work_flg')->default(false)->comment('労働フラグ');
             $table->boolean('rest_flg')->default(false)->comment('休暇フラグ');
             $table->boolean('request_rest_flg')->default(false)->comment('有給休暇フラグ');
 

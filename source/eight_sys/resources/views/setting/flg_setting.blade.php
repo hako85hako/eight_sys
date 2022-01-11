@@ -138,6 +138,9 @@
                                 <td>
                                     <input type="checkbox" class="form-check-input" name="rest_flg" form="create_status">
                                 </td>
+                                <td>
+                                    <input type="checkbox" class="form-check-input" name="request_rest_flg" form="create_status">
+                                </td>
                                 <td></td>
                             </tr>
                         </table>

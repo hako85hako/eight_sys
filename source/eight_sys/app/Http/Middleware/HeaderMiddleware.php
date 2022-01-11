@@ -3,15 +3,16 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use \Datetime;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\Factory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\View;
+
 use App\Models\user_detail;
 use App\Models\company;
 use App\Models\user_requestRest_log;
 use App\Models\company_requestRest_setting;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\View;
-use Illuminate\View\Factory;
-use \Datetime;
 
 class HeaderMiddleware
 {
@@ -57,6 +58,8 @@ class HeaderMiddleware
             print($e->getMessage());
             $user_detail = 'ログイン情報取得失敗';
         }
+
+        
 
         //有給休暇取得判定処理
         try{

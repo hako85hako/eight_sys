@@ -80,8 +80,14 @@ class settingController extends Controller
                 }else{
                     $request->rest_flg = 0;
                 }
+                if($request->request_rest_flg == 'on'){
+                    $request->request_rest_flg = 1;
+                }else{
+                    $request->request_rest_flg = 0;
+                }
                 $status_item->work_flg = $request->work_flg;
                 $status_item->rest_flg = $request->rest_flg;
+                $status_item->request_rest_flg = $request->request_rest_flg;
 
                 $status_item->CREATE_USER = Auth::user()->name;
                 $status_item->UPDATE_USER = Auth::user()->name;

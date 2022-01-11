@@ -21,7 +21,7 @@ class CreateAttendancesTable extends Migration
             $table->increments('id');
             $table->string('user_id', 200)->comment('ユーザーID情報');
             $table->date('date')->comment('登録日付');
-            $table->string('main_status', 200)->comment('メインステータス');
+            $table->string('main_status', 200)->nullable()->comment('メインステータス');
 
             //defalt_columns
             $table->boolean('DELETE_FLG')->default(false)->comment('削除フラグ');
