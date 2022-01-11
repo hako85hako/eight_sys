@@ -64,8 +64,8 @@ class HeaderMiddleware
         }catch (\Exception $e) {
             //ログ出力
             \Log::error($e);
-            print($e->getMessage());
-            print('有給付与処理失敗');
+            //print($e->getMessage());
+            //print('有給付与処理失敗');
         }
 
         return $next($request);

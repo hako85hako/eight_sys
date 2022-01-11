@@ -99,6 +99,7 @@ class userDetailController extends Controller
             $new_user_detail->date_inf = date('Y-m-d');
             $new_user_detail->company_id = $user_detail->company_id;
             $new_user_detail->name = $request->name;
+            $new_user_detail->role = 'user';
             $new_user_detail->hire_date = $request->hire_date;
             $new_user_detail->department_id = $request->department;
 
