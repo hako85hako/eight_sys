@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\user_detail;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use App\MyTools\dateControllTools;
+
 use App\Models\attendance;
 use App\Models\attendance_detail;
 use App\Models\status_item;
+use App\Models\user_detail;
+
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 /**
  * 勤怠に関するController
@@ -30,9 +32,7 @@ class attendanceController extends Controller
     public function index(Request $request){
         $date_now = date("Y-m-d", strtotime(date('Y-m-d')."-2 month"));
         $myTools = new dateControllTools();
-        $user_detail = user_detail::where('DELETE_FLG',False)
-                ->where('user_id',Auth::user()->id)
-                ->first();
+        $user_detail = createDBitemTools::createUserDetail();
         //初回アクセスの場合
         if(!isset($user_detail->user_id)){
             //月情報付与
@@ -46,7 +46,7 @@ class attendanceController extends Controller
                 $user_detail->date_inf = date('Y-m-d');
                 $user_detail->company_id = '1';//TODO 要修正
                 $user_detail->name = Auth::user()->name;
-                $user_detail->role = "user";
+                $user_detail->role = "user";//TODO 要修正
                 $user_detail->department_id = '1';//初期設定
                 $user_detail->CREATE_USER = Auth::user()->name;
                 $user_detail->UPDATE_USER = Auth::user()->name;
@@ -56,10 +56,7 @@ class attendanceController extends Controller
                 //コミット処理
                 DB::commit();
             }catch (\Exception $e) {
-                //ロールバック処理
-                DB::rollback();
-                //ログ出力
-                \Log::error($e);
+                createDBitemTools::DBrollback();
                 print($e->getMessage());
                 print('DBcommit失敗');
             }
@@ -83,10 +80,7 @@ class attendanceController extends Controller
                 //コミット処理
                 DB::commit();
             }catch (\Exception $e) {
-                //ロールバック処理
-                DB::rollback();
-                //ログ出力
-                \Log::error($e);
+                createDBitemTools::DBrollback();
                 print($e->getMessage());
                 print('DBcommit失敗');
             }
@@ -113,7 +107,7 @@ class attendanceController extends Controller
                 //曜日を数字で取得
                 $preDayOfWeek = date("N", strtotime($dateBuff));
                 //日本語の曜日を取得
-                $dayOfWeek = $myTools->get_dayOfWeek($preDayOfWeek);
+                $dayOfWeek = dateControllTools::get_dayOfWeek($preDayOfWeek);
                 
                 //attendanceを取得
                 $attendance = attendance::where('DELETE_FLG',False)
@@ -182,10 +176,7 @@ class attendanceController extends Controller
             //コミット処理
             DB::commit();
         }catch (\Exception $e) {
-            //ロールバック処理
-            DB::rollback();
-            //ログ出力
-            \Log::error($e);
+            createDBitemTools::DBrollback();
             print($e->getMessage());
             print('DBcommit失敗');
         }
@@ -199,7 +190,7 @@ class attendanceController extends Controller
         //[5]：attendance_id
         //[6]：attendance_details → object
         //[7]：date_now;
-        return view('attendance/index',compact('date_items','status_items','time_items','month_inf'));
+        return view('attendance/index',compact('user_detail','date_items','status_items','time_items','month_inf'));
     }
 
     //詳細表示
