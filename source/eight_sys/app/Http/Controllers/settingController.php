@@ -2,16 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\MyTools\dateControllTools;
-use App\Models\attendance_detail;
-use App\Models\user_detail;
-use App\Models\status_item;
-use App\Models\department_item;
-use App\Models\company_requestRest_setting;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
+use App\MyTools\dateControllTools;
+use App\MyTools\tableItemControllTools;
 
 /**
  * 設定に関するController
@@ -28,21 +24,14 @@ class settingController extends Controller
     //初期アクセス
     //「/setting」へのGETアクセス
     public function index(){
-        $user_detail = user_detail::where('DELETE_FLG',False)
-                ->where('user_id',Auth::user()->id)
-                ->first();
-
-        $status_items = status_item::where('DELETE_FLG',False)
-                ->where('company_id',$user_detail->company_id)
-                ->get();
-        
-        $department_items = department_item::where('DELETE_FLG',False)
-                ->where('company_id',$user_detail->company_id)
-                ->get();
-        
-        $requestRest_settings = company_requestRest_setting::where('DELETE_FLG',False)
-                ->where('company_id',$user_detail->company_id)
-                ->get();
+        //user_detailの取得
+        $user_detail = tableItemControllTools::get_userDetail_from_userId(Auth::user()->id);
+        //status_itemsの取得
+        $status_items = tableItemControllTools::get_statusItem_from_companyId($user_detail->company_id);
+        //department_itemsの取得
+        $department_items = tableItemControllTools::get_departmentItem_from_companyId($user_detail->company_id);
+        //requestRest_settingsの取得
+        $requestRest_settings = tableItemControllTools::get_companyRequestRestSetting_from_companyId($user_detail->company_id);
         return view('setting/index',compact('status_items','department_items','requestRest_settings'));
     }
 
@@ -62,11 +51,10 @@ class settingController extends Controller
         //トランザクション開始
         DB::beginTransaction();
         try{
-            $user_detail = user_detail::where('DELETE_FLG',False)
-                ->where('user_id',Auth::user()->id)
-                ->first();
+            $user_detail =　tableItemControllTools::get_userDetail_from_userId(Auth::user()->id) ;
+            
             if($request->select == 'status'){
-                $status_item = new status_item();
+                $status_item = tableItemControllTools::create_statusItem();
                 $status_item->company_id = $user_detail->company_id;
                 
                 $status_item->status_name = $request->status_name;
@@ -98,7 +86,7 @@ class settingController extends Controller
                 //コミット処理
                 DB::commit();
             }else if($request->select == 'department'){
-                $department_item = new department_item();
+                $department_item = tableItemControllTools::create_departmentItem();
                 $department_item->company_id = $user_detail->company_id;
                 $department_item->department_name_1 = $request->department_name_1;
                 $department_item->department_name_2 = $request->department_name_2;
@@ -113,10 +101,7 @@ class settingController extends Controller
                 DB::commit();
             }
         }catch (\Exception $e) {
-            //ロールバック処理
-            DB::rollback();
-            //ログ出力
-            \Log::error($e);
+            tableItemControllTools::DBrollback($e);
             print($e->getMessage());
             print('DBcommit失敗');
         }
@@ -149,9 +134,7 @@ class settingController extends Controller
         DB::beginTransaction();
         try{
             if($request->select == 'status'){
-                $status_item = status_item::where('DELETE_FLG',False)
-                        ->where('id',$id)
-                        ->first();
+                $status_item = tableItemControllTools::get_statusItem_from_id($id);
                 $status_item->status_name = $request->status_name;
                 if($request->work_flg == 'on'){
                     $request->work_flg = 1;
@@ -179,9 +162,7 @@ class settingController extends Controller
                 //コミット処理
                 DB::commit();
             }else if($request->select == 'department'){
-                $department_item = department_item::where('DELETE_FLG',False)
-                        ->where('id',$id)
-                        ->first();
+                $department_item = tableItemControllTools::get_departmentItem_from_id($id);
                 $department_item->department_name_1 = $request->department_name_1;
                 $department_item->department_name_2 = $request->department_name_2;
 
@@ -192,10 +173,7 @@ class settingController extends Controller
                 DB::commit();
             }        
         }catch (\Exception $e) {
-            //ロールバック処理
-            DB::rollback();
-            //ログ出力
-            \Log::error($e);
+            tableItemControllTools::DBrollback($e);
             print($e->getMessage());
             print('DBcommit失敗');
         }

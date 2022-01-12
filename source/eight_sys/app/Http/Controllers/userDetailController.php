@@ -2,16 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\MyTools\dateControllTools;
-use App\Models\attendance_detail;
-use App\Models\user_detail;
-use App\Models\User;
-use App\Models\department_item;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\Request;
 
+use App\MyTools\dateControllTools;
+use App\MyTools\tableItemControllTools;
 
 /**
  * user_detailsに関するController
@@ -31,18 +28,9 @@ class userDetailController extends Controller
      * @return ./userDetail/index
      */
     public function index(){
-        $user_detail = user_detail::where('DELETE_FLG',False)
-        ->where('user_id',Auth::user()->id)
-        ->first();
-        
-        $users = user_detail::where('DELETE_FLG',False)
-        ->where('company_id',$user_detail->company_id)
-        ->get();
-
-        $department_items = department_item::where('DELETE_FLG',False)
-        ->where('company_id',$user_detail->company_id)
-        ->get();
-
+        $user_detail = tableItemControllTools::get_userDetail_from_userId(Auth::user()->id);
+        $users = tableItemControllTools::get_userDetails_from_companyId($user_detail->company_id);
+        $department_items = tableItemControllTools::get_departmentItem_from_companyId($user_detail->company_id);
         return view('./userDetail/index',compact('users','department_items'));
     }
 
@@ -59,13 +47,9 @@ class userDetailController extends Controller
      * @return userEdit/edit
      */
     public function create(){
-        $new_user = new user_detail();
-        $user_detail = user_detail::where('DELETE_FLG',False)
-        ->where('user_id',Auth::user()->id)
-        ->first();
-        $department_items = department_item::where('DELETE_FLG',False)
-        ->where('company_id',$user_detail->company_id)
-        ->get();
+        $new_user = tableItemControllTools::create_userDetail();
+        $user_detail = tableItemControllTools::get_userDetail_from_userId(Auth::user()->id);
+        $department_items = tableItemControllTools::get_departmentItem_from_companyId($user_detail->company_id);
         return view('userEdit/edit', compact('new_user','department_items'));
     }
 
@@ -82,19 +66,17 @@ class userDetailController extends Controller
         DB::beginTransaction();
         try{
             //登録した人の情報
-            $user_detail = user_detail::where('DELETE_FLG',False)
-            ->where('user_id',Auth::user()->id)
-            ->first();
+            $user_detail = tableItemControllTools::get_userDetail_from_userId(Auth::user()->id);
 
             //登録する人の情報
             //User
-            $new_User = new User();
+            $new_User = tableItemControllTools::create_user();
             $new_User->name = $request->name;
             $new_User->email = $request->email;
             $new_User->password = Hash::make($new_User->email.'123');
             $new_User->save();
             //user_detail
-            $new_user_detail = new user_detail();
+            $new_user_detail = tableItemControllTools::create_userDetail();
             $new_user_detail->user_id = $new_User->id;
             $new_user_detail->date_inf = date('Y-m-d');
             $new_user_detail->company_id = $user_detail->company_id;
@@ -111,10 +93,7 @@ class userDetailController extends Controller
             //コミット処理
             DB::commit();
         }catch (\Exception $e) {
-            //ロールバック処理
-            DB::rollback();
-            //ログ出力
-            \Log::error($e);
+            tableItemControllTools::DBrollback($e);
             print($e->getMessage());
             print('DBcommit失敗');
         }
@@ -131,24 +110,13 @@ class userDetailController extends Controller
     public function edit($id){
         DB::beginTransaction();
         try{
-            $user_detail = user_detail::where('DELETE_FLG',False)
-            ->where('user_id',Auth::user()->id)
-            ->first();
-
-            $edit_user_detail = user_detail::where('DELETE_FLG',False)
-            ->where('id',$id)
-            ->first();
-            $edit_user = User::where('id',$edit_user_detail->user_id)
-            ->first();
+            $user_detail = tableItemControllTools::get_userDetail_from_userId(Auth::user()->id);
+            $edit_user_detail = tableItemControllTools::get_userDetail_from_id($id);
+            $edit_user = tableItemControllTools::get_user_from_id($edit_user_detail->user_id);
             $userEmail = $edit_user->email;
-            $department_items = department_item::where('DELETE_FLG',False)
-            ->where('company_id',$user_detail->company_id)
-            ->get();
+            $department_items = tableItemControllTools::get_departmentItem_from_companyId($user_detail->company_id);
         }catch (\Exception $e) {
-            //ロールバック処理
-            DB::rollback();
-            //ログ出力
-            \Log::error($e);
+            tableItemControllTools::DBrollback($e);
             print($e->getMessage());
             print('DBcommit失敗');
         }
@@ -167,21 +135,17 @@ class userDetailController extends Controller
      * @return redirect("/userDetail");
      */
     public function update(Request $request, $id){
-
         DB::beginTransaction();
         try{
             //対象ユーザーの情報
             if(isset($request->name)){
-                $select_User = User::where('id',$request->user_id)
-                        ->first();
+                $select_User = tableItemControllTools::get_user_from_id($request->user_id);
                 $select_User->name = $request->name;
                 $select_User->email = $request->email;
                 $select_User->save();
             }
             //user_detail
-            $select_user_detail = user_detail::where('DELETE_FLG',False)
-            ->where('id',$id)
-            ->first();
+            $select_user_detail = tableItemControllTools::get_userDetail_from_id($id);
             $select_user_detail->department_id = $request->department;
             $select_user_detail->name = $request->name;
             $select_user_detail->hire_date = $request->hire_date;
@@ -192,10 +156,7 @@ class userDetailController extends Controller
             $select_user_detail->save();
             DB::commit();
         }catch (\Exception $e) {
-            //ロールバック処理
-            DB::rollback();
-            //ログ出力
-            \Log::error($e);
+            tableItemControllTools::DBrollback($e);
             print($e->getMessage());
             print('DBcommit失敗');
         }

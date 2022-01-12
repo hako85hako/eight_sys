@@ -9,10 +9,7 @@ use Illuminate\View\Factory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
 
-use App\Models\user_detail;
-use App\Models\company;
-use App\Models\user_requestRest_log;
-use App\Models\company_requestRest_setting;
+use App\MyTools\tableItemControllTools;
 
 class HeaderMiddleware
 {
@@ -32,29 +29,25 @@ class HeaderMiddleware
         //company_name取得処理
         try{
             if(isset(Auth::user()->id)){
-                $user_detail = user_detail::where('DELETE_FLG',False)
-                        ->where('user_id',Auth::user()->id)
-                        ->first();
-                $company = company::where('DELETE_FLG',False)
-                        ->where('id',$user_detail->company_id)
-                        ->first();
+                $user_detail = tableItemControllTools::get_userDetail_from_userId(Auth::user()->id);
+                $company = tableItemControllTools::get_company_from_id($user_detail->company_id);
                 $company_name = $company->name;
             }else{
                 $company_name = '企業情報取得失敗';
             }
             $this->viewFactory->share('company_name', $company_name);
         }catch (\Exception $e) {
+            tableItemControllTools::DBrollback($e);
             print($e->getMessage());
             $company_name = '会社情報取得失敗';
         }
 
         //user_detail取得処理
         try{
-            $user_detail = user_detail::where('DELETE_FLG',False)
-                ->where('user_id',Auth::user()->id)
-                ->first();
+            $user_detail = tableItemControllTools::get_userDetail_from_userId(Auth::user()->id);
             $this->viewFactory->share('user_detail', $user_detail);
         }catch (\Exception $e) {
+            tableItemControllTools::DBrollback($e);
             print($e->getMessage());
             $user_detail = 'ログイン情報取得失敗';
         }
@@ -65,8 +58,7 @@ class HeaderMiddleware
         try{
             $this->judgeGiveRequestRest();
         }catch (\Exception $e) {
-            //ログ出力
-            \Log::error($e);
+            tableItemControllTools::DBrollback($e);
             //print($e->getMessage());
             //print('有給付与処理失敗');
         }
@@ -77,7 +69,7 @@ class HeaderMiddleware
 
 
     private function giveRequestRest($user_detail_id,$give_date){
-        $user_requestRest_log = new user_requestRest_log();
+        $user_requestRest_log = tableItemControllTools::create_userRequestRestLog();
         $user_requestRest_log->user_detail_id = $user_detail_id;
         $user_requestRest_log->get_date = new DateTime($give_date);
         $user_requestRest_log->CREATE_USER = 'admin';
@@ -90,9 +82,7 @@ class HeaderMiddleware
 
     private function judgeGiveRequestRest(){
             //ユーザー詳細情報を取得
-            $user_detail = user_detail::where('DELETE_FLG',False)
-                ->where('user_id',Auth::user()->id)
-                ->first();
+            $user_detail = tableItemControllTools::get_userDetail_from_userId(Auth::user()->id);
             //入社日を取得
             $hire_date = $user_detail->hire_date;
             //経過日数を算出
@@ -102,26 +92,20 @@ class HeaderMiddleware
             $diff = $day->diff($today);
 
             //前回取得した有給休暇の情報を取得
-            $before_requestRest = company_requestRest_setting::where('DELETE_FLG',False)
-            ->where('active_flg',True)
-            ->where('id',$user_detail->before_requestRest_id)
-            ->first();
+            $before_requestRest = tableItemControllTools::get_companyRequestRestSetting_from_beforeRequestRestId($user_detail->before_requestRest_id);
             
             if(isset($before_requestRest)){
                 //取得歴がある場合
                 //次回の付与日を取得
-                $next_date = company_requestRest_setting::where('DELETE_FLG',False)
-                ->where('active_flg',True)
-                ->where('company_id',$user_detail->company_id)
-                ->where('pass_date','>',$before_requestRest->pass_date)
-                ->min('pass_date');
+                $next_date = tableItemControllTools::get_companyRequestRestSetting_from_companyId_and_overPassDate_minimum(
+                    $user_detail->company_id,
+                    '>',
+                    $before_requestRest->pass_date,
+                    'pass_date'
+                );
                 if(!isset($next_date)){
-                    $max_id = user_requestRest_log::where('DELETE_FLG',False)
-                    ->max('id');
-                    var_dump($max_id);
-                    $user_requestRest_log = user_requestRest_log::where('DELETE_FLG',False)
-                    ->where('id',$max_id)
-                    ->first();
+                    $max_id = tableItemControllTools::get_companyRequestRestSetting_max('id');
+                    $user_requestRest_log = tableItemControllTools::get_companyRequestRestSetting_id($max_id);
                     $next_give_date = date('Y-m-d', strtotime($user_requestRest_log->give_date." 12 month"));
                     $day2 = new DateTime($next_give_date);
                     $diff2 = $day2->diff($today);
@@ -130,24 +114,21 @@ class HeaderMiddleware
             }else{
                 //取得歴がない場合
                 //最初の付与日を取得
-                $next_date = company_requestRest_setting::where('DELETE_FLG',False)
-                ->where('active_flg',True)
-                ->where('company_id',$user_detail->company_id)
-                ->min('pass_date');
+                $next_date = tableItemControllTools::get_companyRequestRestSetting_from_companyId_minimunSelect($user_detail->company_id,'pass_date');
             }
             //付与日に到達しているか判定
             if($next_date < $diff->format('%a')/365 ){
-                $company_requestRest_setting = company_requestRest_setting::where('DELETE_FLG',False)
-                ->where('active_flg',True)
-                ->where('company_id',$user_detail->company_id)
-                ->where('pass_date', $next_date )
-                ->first();
+                $company_requestRest_setting = tableItemControllTools::get_companyRequestRestSetting_from_companyId_add_one_Select(
+                        $user_detail->company_id,
+                        'pass_date',
+                        $next_date
+                );
                 if(!isset($company_requestRest_setting)){
-                    $company_requestRest_setting = company_requestRest_setting::where('DELETE_FLG',False)
-                    ->where('active_flg',True)
-                    ->where('company_id',$user_detail->company_id)
-                    ->where('id', $user_detail->before_requestRest_id)
-                    ->first();
+                    $company_requestRest_setting = tableItemControllTools::get_companyRequestRestSetting_from_companyId_add_one_Select(
+                            $user_detail->company_id,
+                            'id', 
+                            $user_detail->before_requestRest_id
+                    );
                 }
                 //有給付与処理
                 for ($i = 0; $i < $company_requestRest_setting->give_date; $i += 1){
