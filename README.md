@@ -25,9 +25,9 @@ You need to install Docker and to set a path.
     docker-compose up -d --build 
 
 #### ※注意
-    以下ポートを使用する<br>
-    eight_sys_mysql		port:3306<br>
-    eight_sys_nginx		port:80<br>
+以下ポートを使用する<br>
+eight_sys_mysql		port:3306<br>
+eight_sys_nginx		port:80<br>
 
 #### \#eight_sys_php_fpmに接続してcomposerをinstall
     docker exec -it eight_sys_php_fpm bash
@@ -35,7 +35,7 @@ You need to install Docker and to set a path.
     composer install
     exit
 
-####　\#.envファイル作成
+####　\#\.envファイル作成
     vi source/eight_sys/.env
 
 ####　\#作成した.envファイルに以下を添付\(ctr+V\)
