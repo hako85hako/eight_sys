@@ -38,7 +38,7 @@ eight_sys_nginx		port:80<br>
 ####　\#\.envファイル作成
     vi source/eight_sys/.env
 
-####　\#作成した\.envファイルに以下を添付\(ctr+V\)
+####　\#作成した\.envファイルに以下を添付\(ctr\+V\)
     APP_NAME=EIGHT_SYS
     APP_ENV=local
     APP_KEY=base64:b6qIKwnvhBmts9k7oNw/ejB7KKLRZrCUy1gR0/WCmUU=
