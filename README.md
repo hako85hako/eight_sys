@@ -15,30 +15,30 @@ You need to install Docker and to set a path.
  
 ## Usage
  
-#### __#git clone__
+#### __\#git clone__
 git clone https://github.com/hako85hako/eight_sys.git
 
-#### __#cloneしたdirに移動__
+#### __\#cloneしたdirに移動__
 cd eight_sys
 
-#### __#Dockerコンテナ作成__
+#### __\#Dockerコンテナ作成__
 docker-compose up -d --build 
-　## __注意__　#######################
+
+## __注意__
     以下ポートを使用する
     eight_sys_mysql		port:3306
     eight_sys_nginx		port:80
-　##############################
 
-####　__#eight_sys_php_fpmに接続してcomposerをinstall__
+####　__\#eight_sys_php_fpmに接続してcomposerをinstall__
 docker exec -it eight_sys_php_fpm bash
 cd eight_sys
 composer install
 exit
 
-####　__#.envファイル作成__
+####　__\#.envファイル作成__
 vi source/eight_sys/.env
 
-####　__#作成した.envファイルに以下を添付(ctr+c)__
+####　__\#作成した.envファイルに以下を添付(ctr+c)__
 APP_NAME=EIGHT_SYS
 APP_ENV=local
 APP_KEY=base64:b6qIKwnvhBmts9k7oNw/ejB7KKLRZrCUy1gR0/WCmUU=
@@ -104,17 +104,17 @@ PUSHER_APP_CLUSTER=mt1
 MIX_PUSHER_APP_KEY="${PUSHER_APP_KEY}"
 MIX_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
 
-#### __#vi終了__
+#### __\#vi終了__
 :wq
 
-#### __#再びeight_sys_php_fpmに接続してtable作成__
+#### __\#再びeight_sys_php_fpmに接続してtable作成__
 docker exec -it eight_sys_php_fpm bash
 cd eight_sys
 php artisan migrate
 php artisan db:seed
 exit
 
-#### __#ブラウザにてapp起動__
+#### __\#ブラウザにてapp起動__
 URL		:	localhost:80
 Email		:	test@test
 password	:	test1234
