@@ -2,7 +2,7 @@
  
 This project created to practice programing by me.
 
-You can easy get started with Laravel-Progect and PHP by cloning this repository.
+You can easy get started with Laravel-Project and PHP by cloning this repository.
 
 ## Requirement
  
@@ -28,8 +28,7 @@ You need to install Docker and to set a path.
 
 以下ポートを使用する
 
-eight_sys_mysql		port:3306
-
+eight_sys_mysql		port:3306<br>
 eight_sys_nginx		port:80
 
 #### \#eight_sys_php_fpmに接続してcomposerをinstall
