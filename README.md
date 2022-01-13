@@ -16,12 +16,15 @@ You need to install Docker and to set a path.
 ## Usage
  
 #### \#git clone
+
     git clone https://github.com/hako85hako/eight_sys.git
 
 #### \#cloneしたdirに移動
+
     cd eight_sys
 
 #### \#Dockerコンテナ作成
+
     docker-compose up -d --build 
 
 #### ※注意
@@ -32,12 +35,14 @@ eight_sys_mysql		port:3306<br>
 eight_sys_nginx		port:80
 
 #### \#eight_sys_php_fpmに接続してcomposerをinstall
+
     docker exec -it eight_sys_php_fpm bash
     cd eight_sys
     composer install
     exit
 
 ####　\#\.envファイル作成
+
     vi source/eight_sys/.env
 
 ####　\#作成した\.envファイルに以下を添付
@@ -111,6 +116,7 @@ eight_sys_nginx		port:80
     :wq
 
 #### \#再びeight_sys_php_fpmに接続してtable作成
+
     docker exec -it eight_sys_php_fpm bash
     cd eight_sys
     php artisan migrate
@@ -118,6 +124,7 @@ eight_sys_nginx		port:80
     exit
 
 #### \#ブラウザにてapp起動
+
     URL		:	localhost:80
     Email		:	test@test
     password	:	test1234
