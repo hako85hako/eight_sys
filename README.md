@@ -45,7 +45,7 @@ eight_sys_nginx		port:80
 
     vi source/eight_sys/.env
 
-#### __\#作成した.envファイルに以下を添付__
+#### \#作成した.envファイルに以下を添付
     
     APP_NAME=EIGHT_SYS
     APP_ENV=local
@@ -138,6 +138,7 @@ eight_sys_nginx		port:80
 * sakaiyuto47@gmail.com
  
 ## License
+
 "eight_sys" is not Confidential.
 
 If you need to confidential, pleasse request for me.
