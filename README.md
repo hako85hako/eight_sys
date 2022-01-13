@@ -45,7 +45,7 @@ eight_sys_nginx		port:80
 
     vi source/eight_sys/.env
 
-#### \#作成した.envファイルに以下を添付
+#### __\#作成した.envファイルに以下を添付__
     
     APP_NAME=EIGHT_SYS
     APP_ENV=local
