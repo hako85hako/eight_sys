@@ -41,11 +41,11 @@ eight_sys_nginx		port:80
     composer install
     exit
 
-####　\#\.envファイル作成
+####　\#.envファイル作成
 
     vi source/eight_sys/.env
 
-####　\#作成した\.envファイルに以下を添付
+####　\#作成した.envファイルに以下を添付
     
     APP_NAME=EIGHT_SYS
     APP_ENV=local
