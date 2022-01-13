@@ -39,12 +39,13 @@ eight_sys_nginx		port:80<br>
     vi source/eight_sys/.env
 
 ####　\#作成した\.envファイルに以下を添付
+    
     APP_NAME=EIGHT_SYS
     APP_ENV=local
     APP_KEY=base64:b6qIKwnvhBmts9k7oNw/ejB7KKLRZrCUy1gR0/WCmUU=
     APP_DEBUG=true
     APP_URL=http://localhost
-
+    
     LOG_CHANNEL=stack
     LOG_DEPRECATIONS_CHANNEL=null
     LOG_LEVEL=debug
