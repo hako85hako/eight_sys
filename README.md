@@ -6,7 +6,7 @@ You can easy get started with Laravel-Project and PHP by cloning this repository
 
 ## Requirement
  
-* Doker 
+* Docker 
 version 20.10.10：動作確認済み
  
 ## Installation
